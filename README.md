@@ -9,4 +9,4 @@ Setup brief
    Node-1         Node-2
    
    # To init Master using Docker container 
-   #### mansoor@LARC-MANSOOR ~ $ ./masterInit --master
+        mansoor@LARC-MANSOOR ~ $ ./masterInit --master
