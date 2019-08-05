@@ -1,0 +1,43 @@
+#!/bin/bash
+
+
+BasicSetup () {
+	docker volume create worker1						# Volume Creation 
+	docker run --name worker1 -v worker1:/data -d mongo --smallfiles	# Sample Container for Basic Setup 
+	docker exec worker1 bash -c 'mkdir -p /data/keyfile /data/admin'		# Directory creation to volume
+	docker cp admin.js worker1:/data/admin/					# Files copy to docker volume
+	docker cp replica.js worker1:/data/admin/				# Files copy to docker volume
+	docker cp mongo-keyfile worker1:/data/keyfile/
+	docker exec worker1 bash -c 'chmod 600 /data/keyfile/mongo-keyfile'
+	docker exec worker1 bash -c 'chown -R mongodb:mongodb /data'		# Changing permissions within docker volume	
+	docker exec worker1 bash -c 'mongo < /data/admin/admin.js'		# User create in container 
+	# Container IP inspection
+	docker rm -f worker1
+}
+
+SpawnContainer () {
+
+docker run --name worker1 --hostname worker1 \
+	-v worker1:/data \
+	--env-file env \
+	--add-host manager1:172.17.0.2 \
+	--add-host worker1:172.17.0.3 \
+	--add-host worker2:172.17.0.4 \
+	-p 27018:27017 \
+	-d mongo --smallfiles \
+	--keyFile /data/keyfile/mongo-keyfile \
+	--replSet 'rs1' \
+	--storageEngine wiredTiger \
+	--port 27017
+	
+	sleep 15 
+	echo "Initializing Mongo DB Server"
+	
+	
+}
+BasicSetup 
+sleep 2
+echo "Creating main load container"
+sleep 5
+SpawnContainer
+

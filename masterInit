@@ -1,0 +1,48 @@
+#!/bin/bash
+## Author : Mansur Ul Hasan
+## Email : mansoor.hasan@10pearls.com
+## This script is designed to setup MongoDB Cluster using docker container
+## this setup is done with single node using docker container 
+
+CallMaster () {
+	echo "Master Setup is going to start"
+	sh masterlaunch --master
+	echo "Master Setup is completed now...!!!"
+
+}
+
+CallSlave () {
+	echo "Slave Setup is going to start ...."
+	sh worker1launch
+	sleep 15
+	sh worker2launch
+	echo "Two nodes has been setup..."
+}
+
+SlaveAdd () {
+	echo "Slave Addition to master is started"
+	sh masterlaunch --addnode
+		
+}
+
+case $1 in 
+--master)
+	CallMaster
+;;
+--slavesetup)
+	CallSlave
+;;
+--member)
+	SlaveAdd
+;;
+--status)
+	sh masterlaunch --status
+;;
+*)
+	echo "Valid Parameters are below
+
+--master		Setup Master Node 
+--slavesetup		Setup Slave Node
+--member		Add members to pool"
+;;
+esac
